@@ -46,7 +46,8 @@
 					if (video.currentTime !== lastVideoTime) {
 						const detections = handLandmarker.detectForVideo(video, video.currentTime);
 						// processResults(detections);
-						if (detections.landmarks) hs = detections.landmarks;
+						if (detections.landmarks.length > 0) hs = detections.landmarks;
+						else hs = undefined;
 						lastVideoTime = video.currentTime;
 					}
 
@@ -86,7 +87,7 @@
 			{/each}
 		</div>
 	{:else}
-		<div>{enabled ? 'No hand detected' : ''}</div>
+		<div class="text-neutral-100">{enabled ? 'No hand detected' : ''}</div>
 	{/if}
 </div>
 
