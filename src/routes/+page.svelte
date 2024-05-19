@@ -9,6 +9,8 @@
 	let video: HTMLVideoElement;
 	let handle: any;
 	let hs: any = undefined;
+	let world;
+	let focusElem;
 
 	let height: number, width: number;
 	let d = 0,
@@ -84,6 +86,7 @@
 						// processResults(detections);
 						if (detections.landmarks.length > 0) {
 							hs = detections.landmarks;
+							world = detections.worldLandmarks;
 							d = getDistance(hs[0][4], hs[0][8]);
 
 							const checkPinch =
@@ -94,6 +97,20 @@
 							if (checkPinch) {
 								w = width - hs[0][4].x * width - 0.9 * x;
 								h = hs[0][4].y * height - 0.9 * y;
+							}
+
+							// get element at position
+							const elem = document.elementFromPoint(
+								width - hs[0][8].x * width,
+								hs[0][8].y * height
+							);
+
+							if (elem !== focusElem) {
+								if (elem?.focus) {
+									focusElem?.blur();
+									focusElem = elem;
+									focusElem.focus();
+								}
 							}
 						} else hs = undefined;
 						lastVideoTime = video.currentTime;
@@ -141,6 +158,8 @@
 </div>
 
 <div class="relative h-[100svh] w-[100vw] flex justify-center items-center">
+	<button class="fixed w-20 aspect-video bg-blue-500 -translate-y-20 focus:bg-blue-200">asdf</button
+	>
 	<div class="hidden fixed top-0 left-0 flex flex-col p-1 text-white gap-1">
 		<video playsinline bind:this={video} class="w-32 h-auto" style="transform: translateX(-1)">
 			Video stream not available.
@@ -153,12 +172,12 @@
 	</div>
 	{#if hs}
 		<div class=" h-full w-full">
-			{#each hs as l}
+			{#each hs as l, j}
 				{#each l as p, i}
 					<div
 						class={`
                             w-6 text-neutral-100 flex justify-center items-center aspect-square text-sm rounded-full fixed border-neutral-600 border
-                            ${d < 0.04 && [4, 8].indexOf(i) !== -1 ? 'bg-red-600' : 'bg-neutral-800'}
+                            ${d < 0.04 && j === 0 && [4, 8].indexOf(i) !== -1 ? 'bg-red-600' : 'bg-neutral-800'}
                         `}
 						style={` left: ${width - p.x * width}px; top: ${p.y * height}px; `}
 					>
